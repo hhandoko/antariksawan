@@ -1,5 +1,7 @@
 profile: service
-defaultPackage: antariksawan
+defaultPackage: com.hhandoko.antariksawan
+
 ---
+
 testFramework: junit
 sourceLanguage: java
