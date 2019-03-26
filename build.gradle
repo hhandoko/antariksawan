@@ -58,8 +58,10 @@ dependencies {
     compile 'io.micronaut:micronaut-runtime'
     compile 'io.micronaut:micronaut-http-client'
     compile 'io.micronaut:micronaut-http-server-netty'
+    compileOnly 'com.oracle.substratevm:svm'
     compileOnly 'io.micronaut:micronaut-inject-java'
     runtime "ch.qos.logback:logback-classic:${logbackVersion}"
+    runtime 'io.micronaut:micronaut-graal'
     testCompile "junit:junit:${junitVersion}"
     testCompile 'io.micronaut:micronaut-inject-java'
     testCompile "org.hamcrest:hamcrest-all:${hamcrestVersion}"
