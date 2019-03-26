@@ -45,7 +45,7 @@ Please read [CONTRIBUTING] for more details.
     limitations under the License.
 ```
 
-`kolektif` is released under the Apache Version 2.0 License. See the [LICENSE] file for further details.
+`antariksawan` is released under the Apache Version 2.0 License. See the [LICENSE] file for further details.
 
 [CONTRIBUTING]: https://github.com/hhandoko/antariksawan/blob/master/CONTRIBUTING.md
 [feature-branch]: http://nvie.com/posts/a-successful-git-branching-model/
