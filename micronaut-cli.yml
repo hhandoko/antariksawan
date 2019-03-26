@@ -1,0 +1,5 @@
+profile: service
+defaultPackage: antariksawan
+---
+testFramework: junit
+sourceLanguage: java
