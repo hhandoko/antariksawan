@@ -18,38 +18,47 @@
 # Notes    :
 #   Based on multi-stage GraalVM native image Dockerfile from Micronaut
 ###
-FROM         gradle:jdk8 as builder
-COPY         --chown=gradle:gradle . /home/app
+FROM         oracle/graalvm-ce:1.0.0-rc14 as builder
+LABEL        description="Micronaut - GraalVM-based all-in-one JAR builder"
+
+COPY         . /home/app/
 WORKDIR      /home/app
-RUN          ./gradlew build
+
+RUN          ./gradlew --no-daemon assemble
 
 # ~~~~~~
 
-FROM         oracle/graalvm-ce:1.0.0-rc11 as graalvm
-COPY         --from=builder /home/app/ /home/app/
+FROM         oracle/graalvm-ce:1.0.0-rc14 as graalvm
+LABEL        description="Micronaut - GraalVM-based native-image builder"
+
+COPY         --from=builder /home/app/build/libs/ /home/app/
 WORKDIR      /home/app
+
 RUN          java \
-               -cp build/libs/*.jar \
+               -cp *.jar \
                io.micronaut.graal.reflect.GraalClassLoadingAnalyzer \
                reflect.json
 RUN          native-image \
                --no-server \
-               --class-path /home/app/build/libs/*.jar \
+               --class-path /home/app/*.jar \
+               --rerun-class-initialization-at-runtime='sun.security.jca.JCAUtil$CachedSecureRandomHolder',javax.net.ssl.SSLContext \
+               --delay-class-initialization-to-runtime=io.netty.handler.codec.http.HttpObjectEncoder,io.netty.handler.codec.http.websocketx.WebSocket00FrameEncoder,io.netty.handler.ssl.util.ThreadLocalInsecureRandom \
+               --allow-incomplete-classpath \
                -H:ReflectionConfigurationFiles=/home/app/reflect.json \
                -H:EnableURLProtocols=http \
                -H:IncludeResources='logback.xml|application.yml|META-INF/services/*.*' \
                -H:+ReportUnsupportedElementsAtRuntime \
                -H:+AllowVMInspection \
-               --rerun-class-initialization-at-runtime='sun.security.jca.JCAUtil$CachedSecureRandomHolder',javax.net.ssl.SSLContext \
-               --delay-class-initialization-to-runtime=io.netty.handler.codec.http.HttpObjectEncoder,io.netty.handler.codec.http.websocketx.WebSocket00FrameEncoder,io.netty.handler.ssl.util.ThreadLocalInsecureRandom \
                -H:-UseServiceLoaderFeature \
-               --allow-incomplete-classpath \
                -H:Name=antariksawan \
                -H:Class=com.hhandoko.antariksawan.Application
 
 # ~~~~~~
 
 FROM         frolvlad/alpine-glibc
+LABEL        description="Micronaut - GraalVM native-image runtime container"
+
+COPY         --from=graalvm /home/app/antariksawan ./
+
 EXPOSE       8080
-COPY         --from=graalvm /home/app/antariksawan .
 ENTRYPOINT   ["./antariksawan"]
