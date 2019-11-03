@@ -17,10 +17,8 @@
  */
 pluginManagement {
     plugins {
-        id 'io.spring.dependency-management' version '1.0.6.RELEASE'
         id 'com.github.johnrengelman.shadow' version gradleShadowVersion
         id 'net.ltgt.apt-eclipse' version gradleAptVersion
-        id 'net.ltgt.apt-idea' version gradleAptVersion
     }
 }
 
