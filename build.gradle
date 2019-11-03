@@ -16,8 +16,6 @@
  *   limitations under the License.
  */
 buildscript {
-    apply from: 'version.gradle'
-
     repositories {
         mavenLocal()
         mavenCentral()
@@ -26,10 +24,10 @@ buildscript {
 }
 
 plugins {
-    id 'io.spring.dependency-management' version '1.0.6.RELEASE'
-    id 'com.github.johnrengelman.shadow' version '4.0.2'
-    id 'net.ltgt.apt-eclipse' version '0.18'
-    id 'net.ltgt.apt-idea' version '0.18'
+    id 'io.spring.dependency-management'
+    id 'com.github.johnrengelman.shadow'
+    id 'net.ltgt.apt-eclipse'
+    id 'net.ltgt.apt-idea'
 }
 
 apply plugin: 'application'
