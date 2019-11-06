@@ -10,7 +10,27 @@ The only prerequisites is JDK 8. Gradle (build tool) will be downloaded and setu
 
 ## Setup Steps
 
-  1. Run `./gradlew run` to start the web service
+The application can be built and run via different methods:
+
+- Gradle for development,
+- All-in-one JAR for a normal Java distribution,
+- Native image builds via Docker
+
+Following any of the above method will allow the application to be accessible from [`localhost:8080`](http://localhost:8080) from your browser.
+
+### Development mode via Gradle
+
+  1. Run `./gradlew run` to start the application in development mode
+
+### All-in-One JAR
+
+  1. Run `./gradlew assemble` to build an all-in-one JAR for the web application
+  2. Run `java -jar build/libs/*-all.jar` to run the application
+
+### Native Image via Docker
+
+  1. Run `docker build . -t antariksawan` to create a native image containerised version
+  2. Run `docker run -p 8080:8080 antariksawan -d` to run the application with binding to port `8080`
 
 Now you can visit it on [`localhost:8080`](http://localhost:8080) from your browser.
 

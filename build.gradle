@@ -16,8 +16,6 @@
  *   limitations under the License.
  */
 buildscript {
-    apply from: 'version.gradle'
-
     repositories {
         mavenLocal()
         mavenCentral()
@@ -26,56 +24,62 @@ buildscript {
 }
 
 plugins {
-    id 'io.spring.dependency-management' version '1.0.6.RELEASE'
-    id 'com.github.johnrengelman.shadow' version '4.0.2'
-    id 'net.ltgt.apt-eclipse' version '0.18'
-    id 'net.ltgt.apt-idea' version '0.18'
+    id 'com.github.johnrengelman.shadow'
+    id 'net.ltgt.apt-eclipse'
+    id 'application'
 }
-
-apply plugin: 'application'
-apply plugin: 'java'
 
 version rootProject.file('VERSION.txt').text.trim()
 group 'com.hhandoko.antariksawan'
 
+configurations {
+    // For development-only dependencies
+    developmentOnly
+}
+
 repositories {
-    mavenLocal()
     mavenCentral()
     maven { url 'https://jcenter.bintray.com' }
 }
 
-dependencyManagement {
-    imports {
-        mavenBom "io.micronaut:micronaut-bom:${micronautVersion}"
-    }
-}
-
 dependencies {
+    annotationProcessor platform("io.micronaut:micronaut-bom:${micronautVersion}")
+    annotationProcessor 'io.micronaut:micronaut-graal'
     annotationProcessor 'io.micronaut:micronaut-inject-java'
     annotationProcessor 'io.micronaut:micronaut-validation'
-    compile 'io.micronaut:micronaut-inject'
-    compile 'io.micronaut:micronaut-validation'
-    compile 'io.micronaut:micronaut-runtime'
-    compile 'io.micronaut:micronaut-http-client'
-    compile 'io.micronaut:micronaut-http-server-netty'
     compileOnly 'com.oracle.substratevm:svm'
-    compileOnly 'io.micronaut:micronaut-inject-java'
-    runtime "ch.qos.logback:logback-classic:${logbackVersion}"
-    runtime 'io.micronaut:micronaut-graal'
-    testCompile "junit:junit:${junitVersion}"
-    testCompile 'io.micronaut:micronaut-inject-java'
-    testCompile "org.hamcrest:hamcrest-all:${hamcrestVersion}"
+    implementation platform("io.micronaut:micronaut-bom:${micronautVersion}")
+    implementation 'io.micronaut:micronaut-inject'
+    implementation 'io.micronaut:micronaut-http-client'
+    implementation 'io.micronaut:micronaut-http-server-netty'
+    implementation 'io.micronaut:micronaut-runtime'
+    implementation 'io.micronaut:micronaut-validation'
+    runtimeOnly "ch.qos.logback:logback-classic:${logbackVersion}"
+    testAnnotationProcessor platform("io.micronaut:micronaut-bom:${micronautVersion}")
+    testAnnotationProcessor 'io.micronaut:micronaut-inject-java'
+    testImplementation platform("io.micronaut:micronaut-bom:${micronautVersion}")
+    testImplementation 'io.micronaut.test:micronaut-test-junit5'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter0engine'
 }
 
 shadowJar {
     mergeServiceFiles()
 }
 
-run.jvmArgs('-noverify', '-XX:TieredStopAtLevel=1')
+test {
+    classpath += configurations.developmentOnly
+    useJUnitPlatform()
+}
+
+run {
+    classpath += configurations.developmentOnly
+    jvmArgs('-noverify', '-XX:TieredStopAtLevel=1', '-Dcom.sun.management.jmxremote')
+}
 
 mainClassName = "${rootProject.group}.Application"
 
-tasks.withType(JavaCompile){
+tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
     options.compilerArgs.add('-parameters')
 }
