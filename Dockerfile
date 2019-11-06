@@ -18,7 +18,7 @@
 # Notes    :
 #   Based on multi-stage GraalVM native image Dockerfile from Micronaut
 ###
-FROM         oracle/graalvm-ce:1.0.0-rc14 as builder
+FROM         oracle/graalvm-ce:19.2.1 as builder
 LABEL        description="Micronaut - GraalVM-based all-in-one JAR builder"
 
 COPY         . /home/app/
@@ -28,30 +28,17 @@ RUN          ./gradlew --no-daemon assemble
 
 # ~~~~~~
 
-FROM         oracle/graalvm-ce:1.0.0-rc14 as graalvm
+FROM         oracle/graalvm-ce:19.2.1 as graalvm
 LABEL        description="Micronaut - GraalVM-based native-image builder"
 
-COPY         --from=builder /home/app/build/libs/ /home/app/
+RUN          gu install native-image
+
+COPY         --from=builder /home/app/build/libs/*-all.jar /home/app/
 WORKDIR      /home/app
 
-RUN          java \
-               -cp *.jar \
-               io.micronaut.graal.reflect.GraalClassLoadingAnalyzer \
-               reflect.json
 RUN          native-image \
                --no-server \
-               --class-path /home/app/*.jar \
-               --rerun-class-initialization-at-runtime='sun.security.jca.JCAUtil$CachedSecureRandomHolder',javax.net.ssl.SSLContext \
-               --delay-class-initialization-to-runtime=io.netty.handler.codec.http.HttpObjectEncoder,io.netty.handler.codec.http.websocketx.WebSocket00FrameEncoder,io.netty.handler.ssl.util.ThreadLocalInsecureRandom \
-               --allow-incomplete-classpath \
-               -H:ReflectionConfigurationFiles=/home/app/reflect.json \
-               -H:EnableURLProtocols=http \
-               -H:IncludeResources='logback.xml|application.yml|META-INF/services/*.*' \
-               -H:+ReportUnsupportedElementsAtRuntime \
-               -H:+AllowVMInspection \
-               -H:-UseServiceLoaderFeature \
-               -H:Name=antariksawan \
-               -H:Class=com.hhandoko.antariksawan.Application
+               --class-path /home/app/*-all.jar
 
 # ~~~~~~
 
