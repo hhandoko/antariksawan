@@ -24,7 +24,9 @@ LABEL        description="Micronaut - GraalVM-based all-in-one JAR builder"
 COPY         . /home/app/
 WORKDIR      /home/app
 
-RUN          ./gradlew --no-daemon assemble
+# Switch to binary distribution for smaller Gradle download
+RUN          sed -i 's/-all.zip/-bin.zip/g' /home/app/gradle/wrapper/gradle-wrapper.properties
+RUN          ./gradlew assemble --console=plain
 
 # ~~~~~~
 
@@ -36,9 +38,7 @@ RUN          gu install native-image
 COPY         --from=builder /home/app/build/libs/*-all.jar /home/app/
 WORKDIR      /home/app
 
-RUN          native-image \
-               --no-server \
-               --class-path /home/app/*-all.jar
+RUN          native-image --no-server --class-path /home/app/*-all.jar
 
 # ~~~~~~
 
