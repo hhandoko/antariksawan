@@ -15,7 +15,7 @@ public class HomeController {
     @Get("/")
     @Produces(TEXT_HTML)
     @View("index")
-    public HttpResponse index() {
+    public HttpResponse<?> index() {
         return HttpResponse.ok(mapOf("name", "You"));
     }
 }
